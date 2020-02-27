@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlackTree", "RedBlackTree\RedBlackTree.csproj", "{DA9F6C03-4F12-4DCB-9FC4-4C3A7304F53C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlackTree.Tests", "RedBlackTree.Tests\RedBlackTree.Tests.csproj", "{27E239D5-CAB6-4D4E-852B-A30B573C1A5D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DA9F6C03-4F12-4DCB-9FC4-4C3A7304F53C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA9F6C03-4F12-4DCB-9FC4-4C3A7304F53C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA9F6C03-4F12-4DCB-9FC4-4C3A7304F53C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA9F6C03-4F12-4DCB-9FC4-4C3A7304F53C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27E239D5-CAB6-4D4E-852B-A30B573C1A5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27E239D5-CAB6-4D4E-852B-A30B573C1A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27E239D5-CAB6-4D4E-852B-A30B573C1A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27E239D5-CAB6-4D4E-852B-A30B573C1A5D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
