@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("RedBlackTree.Tests")]
+
 namespace RedBlackTreeStructure
 {
     public static class NodeExtensions
@@ -256,8 +257,8 @@ namespace RedBlackTreeStructure
                     return (this, Left);
                 }
 
-                var firstNodeWhichMore = Right;
-                while (!firstNodeWhichMore.Left.IsNil())
+                var firstNodeWhichMore = Left;
+                while (!firstNodeWhichMore.Right.IsNil())
                 {
                     firstNodeWhichMore = firstNodeWhichMore.Left;
                 }
@@ -283,6 +284,17 @@ namespace RedBlackTreeStructure
                 get => _right;
                 internal set => SetRight(value);
             }
+
+            public static bool operator ==(Node nd1, Node nd2)
+            {
+                return nd1.Equals(nd2);
+            }
+
+            public static bool operator !=(Node nd1, Node nd2)
+            {
+                return nd1 == nd2 == false;
+            }
+
 
             public Node Parent { get; private set; }
             public Color Color;
