@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("RedBlackTree.Tests")]
@@ -61,11 +62,11 @@ namespace RedBlackTreeStructure
             throw new ArgumentException("state invalid, parent not parent for " + nameof(nd));
         }
 
-        public static void LeftRotate(this RedBlackTree.Node d)
+        public static void RotateLeft(this RedBlackTree.Node b)
         {
-            if (d == null)
+            if (b == null)
                 throw new ArgumentException("node doesn't equal null");
-            var b = d.Parent;
+            var d = b.Right;
             if (b == null)
                 throw new ArgumentException("parent node doesn't equal null");
             if (d.Parent.Right != d)
@@ -82,11 +83,11 @@ namespace RedBlackTreeStructure
             d.SetLeft(b);
         }
 
-        public static void RightRotate(this RedBlackTree.Node d)
+        public static void RightRotate(this RedBlackTree.Node b)
         {
-            if (d == null)
+            if (b == null)
                 throw new ArgumentException("node doesn't equal null");
-            var b = d.Parent;
+            var d = b.Left;
             if (b == null)
                 throw new ArgumentException("parent node doesn't equal null");
             if (b.Left != d)
@@ -135,11 +136,12 @@ namespace RedBlackTreeStructure
 
             public bool Equals(Node x, Node y)
             {
-                if (x == null && y == null)
+                if (ReferenceEquals(x, null) && ReferenceEquals(y, null))
                     return true;
 
-                if (x == null || y == null)
+                if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
                     return false;
+
                 return x.Color == y.Color && x.Value.Equals(y.Value) && Equals(x.Left, y.Left) &&
                        Equals(x.Right, y.Right);
             }
@@ -173,7 +175,8 @@ namespace RedBlackTreeStructure
 
             public Node()
             {
-                _right = _left = Nil;
+                _left = Nil;
+                _right = Nil;
             }
 
             // nil creating
@@ -206,11 +209,12 @@ namespace RedBlackTreeStructure
             {
                 if (Left.IsNil() && Right.IsNil())
                 {
+                    var nil = Nil;
                     if (Parent?.Left == this)
-                        Parent.SetLeft(Nil);
+                        Parent.SetLeft(nil);
                     else if (Parent?.Right == this)
-                        Parent.SetRight(Nil);
-                    return (this, Nil);
+                        Parent.SetRight(nil);
+                    return (this, nil);
                 }
 
                 if (Left.IsNil() && !Right.IsNil())
@@ -287,7 +291,7 @@ namespace RedBlackTreeStructure
 
             public static bool operator ==(Node nd1, Node nd2)
             {
-                return nd1.Equals(nd2);
+                return NodeEqualityComparer.Comparer.Equals(nd1, nd2);
             }
 
             public static bool operator !=(Node nd1, Node nd2)
@@ -431,7 +435,7 @@ namespace RedBlackTreeStructure
                     var a = nd.Parent;
                     var bIsRoot = highParent == null;
 
-                    a.RightRotate();
+                    b.RightRotate();
 
                     a.Color = Color.Black;
                     b.Color = Color.Red;
@@ -441,12 +445,13 @@ namespace RedBlackTreeStructure
                 }
                 else if (nd.IsRightChild() && nd.Parent.IsLeftChild())
                 {
-                    nd.LeftRotate();
+                    // changed
+                    nd.Parent.RotateLeft();
                     Balance(nd.Left);
                 }
                 else if (nd.IsLeftChild() && nd.Parent.IsRightChild())
                 {
-                    nd.RightRotate();
+                    nd.Parent.RightRotate();
                     Balance(nd.Right);
                 }
                 else if (nd.IsRightChild() && nd.Parent.IsRightChild())
@@ -456,7 +461,8 @@ namespace RedBlackTreeStructure
                     var b = nd.Parent.Parent;
                     var bIsRoot = highParent == null;
 
-                    a.LeftRotate();
+                    //changed
+                    b.RotateLeft();
                     a.Color = Color.Black;
                     b.Color = Color.Red;
                     if (bIsRoot)
@@ -478,103 +484,174 @@ namespace RedBlackTreeStructure
 
         public void BalanceAfterRemoveNode(Node childRemovedNode)
         {
+            if (childRemovedNode == _root)
+                return;
+            
             var siblingDeletedNode = childRemovedNode.Sibling();
-
-            //1
-            if (siblingDeletedNode?.Color == Color.Red && childRemovedNode.IsLeftChild())
-            {
-                var a = childRemovedNode.Parent;
-                var b = siblingDeletedNode;
-                a.LeftRotate();
-                a.Color = Color.Red;
-                b.Color = Color.Black;
-                BalanceAfterRemoveNode(childRemovedNode);
-            }
-            //2
-            else if (siblingDeletedNode?.Color == Color.Red && childRemovedNode.IsRightChild())
-            {
-                var a = childRemovedNode.Parent;
-                var b = siblingDeletedNode;
-                a.RightRotate();
-                a.Color = Color.Red;
-                b.Color = Color.Black;
-                BalanceAfterRemoveNode(childRemovedNode);
-            }
-            //5
-            else if (childRemovedNode.IsLeftChild() && siblingDeletedNode?.Color == Color.Black &&
-                     siblingDeletedNode.Left.Color == Color.Red)
-            {
-                var needRecursiveForParent = childRemovedNode.Parent.Color == Color.Black;
-                var b = siblingDeletedNode;
-                var c = b.Left;
-                c.LeftRotate();
-                c.Color = Color.Black;
-                b.Color = Color.Red;
-                if (needRecursiveForParent)
-                {
-                    BalanceAfterRemoveNode(childRemovedNode.Parent);
-                }
-            }
-            //6
-            else if (childRemovedNode.IsRightChild() && siblingDeletedNode?.Color == Color.Black &&
-                     siblingDeletedNode.Right.Color == Color.Red)
-            {
-                var needRecursiveForParent = childRemovedNode.Parent.Color == Color.Black;
-                var b = siblingDeletedNode;
-                var c = b.Right;
-                c.RightRotate();
-                c.Color = Color.Black;
-                b.Color = Color.Red;
-                if (needRecursiveForParent)
-                {
-                    BalanceAfterRemoveNode(childRemovedNode.Parent);
-                }
-            }
-            //3
-            else if (childRemovedNode.IsLeftChild() && siblingDeletedNode.Color == Color.Black &&
-                     siblingDeletedNode.Left.Color == Color.Black && siblingDeletedNode.Right.Color == Color.Black)
-            {
-                var a = childRemovedNode.Parent;
-                var b = a.Right;
-                b.Color = Color.Red;
-                a.Color = Color.Black;
-            }
-
-            //4
-            else if (childRemovedNode.IsRightChild() && siblingDeletedNode.Color == Color.Black &&
-                     siblingDeletedNode.Left.Color == Color.Black && siblingDeletedNode.Right.Color == Color.Black)
-            {
-                var a = childRemovedNode.Parent;
-                var b = a.Left;
-                b.Color = Color.Red;
-                a.Color = Color.Black;
-            }
-
             //7
-            else if (childRemovedNode.IsLeftChild() && siblingDeletedNode.Color == Color.Black &&
-                     siblingDeletedNode.Left.Color == Color.Black && siblingDeletedNode.Right.Color == Color.Red)
+            if (childRemovedNode.IsLeftChild() && siblingDeletedNode.Color == Color.Black &&
+                siblingDeletedNode.Right.Color == Color.Red)
             {
-                var a = childRemovedNode.Parent;
-                var b = a.Right;
-                var d = b.Right;
-                a.LeftRotate();
-                b.Color = a.Color;
-                a.Color = Color.Black;
-                d.Color = Color.Black;
+                Case7(childRemovedNode, siblingDeletedNode);
             }
 
             //8
             else if (childRemovedNode.IsRightChild() && siblingDeletedNode.Color == Color.Black &&
-                     siblingDeletedNode.Left.Color == Color.Red && siblingDeletedNode.Right.Color == Color.Black)
+                     siblingDeletedNode.Left.Color == Color.Red)
             {
-                var a = childRemovedNode.Parent;
-                var b = a.Left;
-                var d = b.Left;
-                a.RightRotate();
-                b.Color = a.Color;
-                a.Color = Color.Black;
-                d.Color = Color.Black;
+                Case8(childRemovedNode, siblingDeletedNode);
             }
+            //1
+            else if (childRemovedNode.Parent.Color == Color.Black
+                     && siblingDeletedNode?.Color == Color.Red && childRemovedNode.IsLeftChild())
+            {
+                Case1(childRemovedNode, siblingDeletedNode);
+                BalanceAfterRemoveNode(childRemovedNode);
+            }
+            //2
+            else if (
+                childRemovedNode.Parent.Color == Color.Black &&
+                siblingDeletedNode?.Color == Color.Red && childRemovedNode.IsRightChild())
+            {
+                Case2(childRemovedNode, siblingDeletedNode);
+                BalanceAfterRemoveNode(childRemovedNode);
+            }
+            //3
+            else if (childRemovedNode.IsLeftChild() && siblingDeletedNode?.Color == Color.Black &&
+                     siblingDeletedNode.Left.Color == Color.Red)
+            {
+                Case3(childRemovedNode, siblingDeletedNode);
+                BalanceAfterRemoveNode(childRemovedNode);
+            }
+            //4
+            else if (childRemovedNode.IsRightChild() && siblingDeletedNode?.Color == Color.Black &&
+                     siblingDeletedNode.Right.Color == Color.Red)
+            {
+                Case4(childRemovedNode, siblingDeletedNode);
+                BalanceAfterRemoveNode(childRemovedNode);
+            }
+            //5
+            else if (childRemovedNode.IsLeftChild() && siblingDeletedNode.Color == Color.Black &&
+                     siblingDeletedNode.Left.Color == Color.Black && siblingDeletedNode.Right.Color == Color.Black)
+            {
+                var needBalanceFather = childRemovedNode.Parent?.Color == Color.Red;
+                Case5(childRemovedNode, siblingDeletedNode);
+                if (needBalanceFather)
+                {
+                    BalanceAfterRemoveNode(childRemovedNode.Parent);
+                }
+            }
+
+            //6
+            else if (childRemovedNode.IsRightChild() && siblingDeletedNode.Color == Color.Black &&
+                     siblingDeletedNode.Left.Color == Color.Black && siblingDeletedNode.Right.Color == Color.Black)
+            {
+                var needBalanceFather = childRemovedNode.Parent?.Color == Color.Red;
+                Case6(childRemovedNode, siblingDeletedNode);
+                if (needBalanceFather)
+                {
+                    BalanceAfterRemoveNode(childRemovedNode.Parent);
+                }
+            }
+        }
+
+        internal void Case1(Node childRemovedNode, Node siblingDeletedNode)
+        {
+            Debug.Assert(childRemovedNode.Parent.Color == Color.Black
+                         && siblingDeletedNode?.Color == Color.Red && childRemovedNode.IsLeftChild());
+
+            var a = childRemovedNode.Parent;
+            var b = siblingDeletedNode;
+            a.RotateLeft();
+            a.Color = Color.Red;
+            b.Color = Color.Black;
+            if (a == _root) _root = b;
+        }
+
+        internal void Case2(Node childRemovedNode, Node siblingDeletedNode)
+        {
+            Debug.Assert(childRemovedNode.Parent.Color == Color.Black &&
+                         siblingDeletedNode?.Color == Color.Red && childRemovedNode.IsRightChild());
+            var a = childRemovedNode.Parent;
+            var b = siblingDeletedNode;
+            a.RightRotate();
+            a.Color = Color.Red;
+            b.Color = Color.Black;
+            if (a == _root) _root = b;
+        }
+
+        internal void Case3(Node childRemovedNode, Node siblingDeletedNode)
+        {
+            Debug.Assert(childRemovedNode.IsLeftChild() && siblingDeletedNode?.Color == Color.Black &&
+                         siblingDeletedNode.Left.Color == Color.Red);
+            var b = siblingDeletedNode;
+            var c = b.Left;
+            b.RightRotate();
+            c.Color = Color.Black;
+            b.Color = Color.Red;
+        }
+
+        internal void Case4(Node childRemovedNode, Node siblingDeletedNode)
+        {
+            Debug.Assert(childRemovedNode.IsRightChild() && siblingDeletedNode?.Color == Color.Black &&
+                         siblingDeletedNode.Right.Color == Color.Red);
+
+            var b = siblingDeletedNode;
+            var c = b.Right;
+            b.RotateLeft();
+            c.Color = Color.Black;
+            b.Color = Color.Red;
+        }
+
+        internal void Case5(Node childRemovedNode, Node siblingDeletedNode)
+        {
+            Debug.Assert(childRemovedNode.IsLeftChild() && siblingDeletedNode.Color == Color.Black &&
+                         siblingDeletedNode.Left.Color == Color.Black && siblingDeletedNode.Right.Color == Color.Black);
+
+            var a = childRemovedNode.Parent;
+            var b = a.Right;
+            b.Color = Color.Red;
+            a.Color = Color.Black;
+        }
+
+        internal void Case6(Node childRemovedNode, Node siblingDeletedNode)
+        {
+            Debug.Assert(childRemovedNode.IsRightChild() && siblingDeletedNode.Color == Color.Black &&
+                         siblingDeletedNode.Left.Color == Color.Black && siblingDeletedNode.Right.Color == Color.Black);
+
+            var a = childRemovedNode.Parent;
+            var b = a.Left;
+            b.Color = Color.Red;
+            a.Color = Color.Black;
+        }
+
+        internal void Case7(Node childRemovedNode, Node siblingDeletedNode)
+        {
+            Debug.Assert(childRemovedNode.IsLeftChild() && siblingDeletedNode.Color == Color.Black &&
+                         siblingDeletedNode.Right.Color == Color.Red);
+            var a = childRemovedNode.Parent;
+            var b = a.Right;
+            var d = b.Right;
+            a.RotateLeft();
+            b.Color = a.Color;
+            a.Color = Color.Black;
+            d.Color = Color.Black;
+            if (a == _root) _root = b;
+        }
+
+        internal void Case8(Node childRemovedNode, Node siblingDeletedNode)
+        {
+            Debug.Assert(childRemovedNode.IsRightChild() && siblingDeletedNode.Color == Color.Black &&
+                         siblingDeletedNode.Left.Color == Color.Red);
+
+            var a = childRemovedNode.Parent;
+            var b = a.Left;
+            var d = b.Left;
+            a.RightRotate();
+            b.Color = a.Color;
+            a.Color = Color.Black;
+            d.Color = Color.Black;
+            if (a == _root) _root = b;
         }
     }
 }
