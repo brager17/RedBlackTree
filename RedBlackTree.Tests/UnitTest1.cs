@@ -1,8 +1,10 @@
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Reflection.Metadata;
 using RedBlackTreeStructure;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ConsoleApp1.Tests
 {
@@ -16,107 +18,567 @@ namespace ConsoleApp1.Tests
                 var nd = new RedBlackTree.Node()
                 {
                     Color = RedBlackTree.Color.Black,
-                    Value = 10,
+                    Value = 2,
                     Left = new RedBlackTree.Node()
                     {
-                        Color = RedBlackTree.Color.Red,
-                        Value = 5,
-                        Left = new RedBlackTree.Node()
-                        {
-                            Value = 4,
-                            Color = RedBlackTree.Color.Black
-                        },
-                        Right = new RedBlackTree.Node()
-                        {
-                            Value = 8,
-                            Color = RedBlackTree.Color.Black,
-                            Left = new RedBlackTree.Node()
-                            {
-                                Value = 7,
-                                Color = RedBlackTree.Color.Black,
-                            },
-                            Right = new RedBlackTree.Node()
-                            {
-                                Color = RedBlackTree.Color.Black,
-                                Value = 9
-                            }
-                        }
+                        Color = RedBlackTree.Color.Black,
+                        Value = 1,
                     },
                     Right = new RedBlackTree.Node()
                     {
-                        Value = 15,
-                        Color = RedBlackTree.Color.Red,
-                        Left = new RedBlackTree.Node()
-                        {
-                            Color = RedBlackTree.Color.Black,
-                            Value = 13,
-                            Right = new RedBlackTree.Node()
-                            {
-                                Color = RedBlackTree.Color.Black,
-                                Value = 14
-                            }
-                        },
+                        Value = 3,
+                        Color = RedBlackTree.Color.Black,
                         Right = new RedBlackTree.Node()
                         {
-                            Color = RedBlackTree.Color.Black,
-                            Value = 20,
-                            Right = new RedBlackTree.Node()
-                            {
-                                Color = RedBlackTree.Color.Black,
-                                Value = 25
-                            },
+                            Color = RedBlackTree.Color.Red,
+                            Value = 4,
                         }
                     }
                 };
 
                 var tree = new RedBlackTree(nd);
-                tree.Remove(5);
+                tree.Remove(3);
                 var expected = new RedBlackTree.Node()
                 {
-                    Value = 15,
+                    Value = 2,
                     Color = RedBlackTree.Color.Black,
                     Left = new RedBlackTree.Node()
                     {
-                        Value = 10,
-                        Color = RedBlackTree.Color.Red,
-                        Right = new RedBlackTree.Node()
-                        {
-                            Value = 13, Color = RedBlackTree.Color.Black,
-                            Right = new RedBlackTree.Node()
-                            {
-                                Value = 14,
-                                Color = RedBlackTree.Color.Black
-                            }
-                        },
+                        Value = 1,
+                        Color = RedBlackTree.Color.Black,
+                    },
+                    Right = new RedBlackTree.Node()
+                    {
+                        Value = 4,
+                        Color = RedBlackTree.Color.Black
+                    }
+                };
+
+                Assert.Equal(expected, tree._root, RedBlackTree.NodeEqualityComparer.Comparer);
+            }
+
+            [Fact]
+            public void Delete6()
+            {
+                var nd = new RedBlackTree.Node()
+                {
+                    Color = RedBlackTree.Color.Black,
+                    Value = 4,
+                    Left = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 2,
                         Left = new RedBlackTree.Node()
                         {
-                            Value = 4,
+                            Value = 1,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
                             Color = RedBlackTree.Color.Black,
-                            Right = new RedBlackTree.Node()
-                            {
-                                Value = 8,
-                                Color = RedBlackTree.Color.Red,
-                                Right = new RedBlackTree.Node()
-                                {
-                                    Value = 9,
-                                    Color = RedBlackTree.Color.Black
-                                },
-                                Left = new RedBlackTree.Node()
-                                {
-                                    Value = 7,
-                                    Color = RedBlackTree.Color.Black
-                                }
-                            },
+                            Value = 3
                         }
                     },
                     Right = new RedBlackTree.Node()
                     {
-                        Value = 20,
+                        Color = RedBlackTree.Color.Black,
+                        Value = 6,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 5,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Red,
+                            Value = 8,
+                            Left = new RedBlackTree.Node()
+                            {
+                                Value = 7,
+                                Color = RedBlackTree.Color.Black
+                            },
+                            Right = new RedBlackTree.Node()
+                            {
+                                Value = 9,
+                                Color = RedBlackTree.Color.Black,
+                                Right = new RedBlackTree.Node()
+                                {
+                                    Color = RedBlackTree.Color.Red,
+                                    Value = 10
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var tree = new RedBlackTree(nd);
+                tree.Remove(6);
+
+                var expected = new RedBlackTree.Node()
+                {
+                    Value = 4,
+                    Color = RedBlackTree.Color.Black,
+                    Left = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 2,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 1,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 3
+                        }
+                    },
+                    Right = new RedBlackTree.Node()
+                    {
+                        Value = 8,
                         Color = RedBlackTree.Color.Black,
                         Right = new RedBlackTree.Node()
                         {
-                            Value = 25,
+                            Value = 9,
+                            Color = RedBlackTree.Color.Black,
+                            Right = new RedBlackTree.Node()
+                            {
+                                Color = RedBlackTree.Color.Red,
+                                Value = 10
+                            }
+                        },
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 5,
+                            Color = RedBlackTree.Color.Black,
+                            Right = new RedBlackTree.Node()
+                            {
+                                Value = 7,
+                                Color = RedBlackTree.Color.Red
+                            }
+                        }
+                    }
+                };
+
+                Assert.Equal(expected, tree._root, RedBlackTree.NodeEqualityComparer.Comparer);
+            }
+
+            [Fact]
+            public void Delete4()
+            {
+                var nd = new RedBlackTree.Node()
+                {
+                    Color = RedBlackTree.Color.Black,
+                    Value = 4,
+                    Left = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 2,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 1,
                             Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 3
+                        }
+                    },
+                    Right = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 6,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 5,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Red,
+                            Value = 8,
+                            Left = new RedBlackTree.Node()
+                            {
+                                Value = 7,
+                                Color = RedBlackTree.Color.Black
+                            },
+                            Right = new RedBlackTree.Node()
+                            {
+                                Value = 9,
+                                Color = RedBlackTree.Color.Black,
+                                Right = new RedBlackTree.Node()
+                                {
+                                    Color = RedBlackTree.Color.Red,
+                                    Value = 10
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var tree = new RedBlackTree(nd);
+                tree.Remove(4);
+
+                var expected = new RedBlackTree.Node()
+                {
+                    Color = RedBlackTree.Color.Black,
+                    Value = 6,
+                    Left = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 3,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 2,
+                            Left = new RedBlackTree.Node()
+                            {
+                                Color = RedBlackTree.Color.Red,
+                                Value = 1
+                            }
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Value = 5,
+                            Color = RedBlackTree.Color.Black
+                        }
+                    },
+                    Right = new RedBlackTree.Node()
+                    {
+                        Value = 8,
+                        Color = RedBlackTree.Color.Black,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 7, Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Value = 9,
+                            Color = RedBlackTree.Color.Black,
+                            Right = new RedBlackTree.Node()
+                            {
+                                Value = 10,
+                                Color = RedBlackTree.Color.Red
+                            }
+                        }
+                    }
+                };
+
+                Assert.Equal(expected, tree._root, RedBlackTree.NodeEqualityComparer.Comparer);
+            }
+
+            [Fact]
+            public void Delete1()
+            {
+                var nd = new RedBlackTree.Node()
+                {
+                    Color = RedBlackTree.Color.Black,
+                    Value = 4,
+                    Left = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 2,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 1,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 3
+                        }
+                    },
+                    Right = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 6,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 5,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Red,
+                            Value = 8,
+                            Left = new RedBlackTree.Node()
+                            {
+                                Value = 7,
+                                Color = RedBlackTree.Color.Black
+                            },
+                            Right = new RedBlackTree.Node()
+                            {
+                                Value = 9,
+                                Color = RedBlackTree.Color.Black,
+                                Right = new RedBlackTree.Node()
+                                {
+                                    Color = RedBlackTree.Color.Red,
+                                    Value = 10
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var tree = new RedBlackTree(nd);
+                tree.Remove(1);
+
+                var expected = new RedBlackTree.Node()
+                {
+                    Color = RedBlackTree.Color.Black,
+                    Value = 6,
+                    Left = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 4,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 2,
+                            Color = RedBlackTree.Color.Black,
+                            Right = new RedBlackTree.Node()
+                            {
+                                Color = RedBlackTree.Color.Red,
+                                Value = 3
+                            }
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 5
+                        }
+                    },
+                    Right = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 8,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 7,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 9,
+                            Right = new RedBlackTree.Node()
+                            {
+                                Value = 10,
+                                Color = RedBlackTree.Color.Red,
+                            }
+                        }
+                    }
+                };
+
+                Assert.Equal(expected, tree._root, RedBlackTree.NodeEqualityComparer.Comparer);
+            }
+
+            [Fact]
+            public void Delete3()
+            {
+                var nd = new RedBlackTree.Node()
+                {
+                    Color = RedBlackTree.Color.Black,
+                    Value = 4,
+                    Left = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 2,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 1,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 3
+                        }
+                    },
+                    Right = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 6,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 5,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Red,
+                            Value = 8,
+                            Left = new RedBlackTree.Node()
+                            {
+                                Value = 7,
+                                Color = RedBlackTree.Color.Black
+                            },
+                            Right = new RedBlackTree.Node()
+                            {
+                                Value = 9,
+                                Color = RedBlackTree.Color.Black,
+                                Right = new RedBlackTree.Node()
+                                {
+                                    Color = RedBlackTree.Color.Red,
+                                    Value = 10
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var tree = new RedBlackTree(nd);
+                tree.Remove(3);
+
+                var expected = new RedBlackTree.Node()
+                {
+                    Color = RedBlackTree.Color.Black,
+                    Value = 6,
+                    Left = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 4,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 2,
+                            Color = RedBlackTree.Color.Black,
+                            Left = new RedBlackTree.Node()
+                            {
+                                Color = RedBlackTree.Color.Red,
+                                Value = 1
+                            }
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 5
+                        }
+                    },
+                    Right = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 8,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 7,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 9,
+                            Right = new RedBlackTree.Node()
+                            {
+                                Value = 10,
+                                Color = RedBlackTree.Color.Red,
+                            }
+                        }
+                    }
+                };
+
+                Assert.Equal(expected, tree._root, RedBlackTree.NodeEqualityComparer.Comparer);
+            }
+
+            [Fact]
+            public void Delete2()
+            {
+                var nd = new RedBlackTree.Node()
+                {
+                    Color = RedBlackTree.Color.Black,
+                    Value = 4,
+                    Left = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 2,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 1,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 3
+                        }
+                    },
+                    Right = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 6,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 5,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Red,
+                            Value = 8,
+                            Left = new RedBlackTree.Node()
+                            {
+                                Value = 7,
+                                Color = RedBlackTree.Color.Black
+                            },
+                            Right = new RedBlackTree.Node()
+                            {
+                                Value = 9,
+                                Color = RedBlackTree.Color.Black,
+                                Right = new RedBlackTree.Node()
+                                {
+                                    Color = RedBlackTree.Color.Red,
+                                    Value = 10
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var tree = new RedBlackTree(nd);
+                tree.Remove(2);
+
+                var expected = new RedBlackTree.Node()
+                {
+                    Color = RedBlackTree.Color.Black,
+                    Value = 6,
+                    Left = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 4,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 1,
+                            Color = RedBlackTree.Color.Black,
+                            Right = new RedBlackTree.Node()
+                            {
+                                Color = RedBlackTree.Color.Red,
+                                Value = 3
+                            }
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 5
+                        }
+                    },
+                    Right = new RedBlackTree.Node()
+                    {
+                        Color = RedBlackTree.Color.Black,
+                        Value = 8,
+                        Left = new RedBlackTree.Node()
+                        {
+                            Value = 7,
+                            Color = RedBlackTree.Color.Black
+                        },
+                        Right = new RedBlackTree.Node()
+                        {
+                            Color = RedBlackTree.Color.Black,
+                            Value = 9,
+                            Right = new RedBlackTree.Node()
+                            {
+                                Value = 10,
+                                Color = RedBlackTree.Color.Red,
+                            }
                         }
                     }
                 };
@@ -575,6 +1037,72 @@ namespace ConsoleApp1.Tests
                 Assert.Equal(RedBlackTree.Color.Black, tree._root.Right.Right.Color);
                 Assert.Equal(RedBlackTree.Color.Red, tree._root.Left.Left.Left.Color);
                 Assert.Equal(15, tree._root.Left.Left.Left.Value);
+            }
+        }
+
+        public class MassInsertTests
+        {
+            private readonly ITestOutputHelper _testOutputHelper;
+
+            public MassInsertTests(ITestOutputHelper testOutputHelper)
+            {
+                _testOutputHelper = testOutputHelper;
+            }
+
+            [Fact]
+            public void MassInsert()
+            {
+                var data = Enumerable.Range(0, 1000).ToArray();
+                var tree = new RedBlackTree();
+
+                foreach (var item in data)
+                {
+                    tree.Insert(item);
+                }
+
+                foreach (var item in data)
+                {
+                    Assert.True(tree.Contains(item));
+                }
+
+                foreach (var item in tree)
+                {
+                    _testOutputHelper.WriteLine(item.ToString());
+                }
+
+                Assert.True(tree.IsValid());
+            }
+
+
+            [Fact]
+            public void MassInsert__MassDelete()
+            {
+                var insert = Enumerable.Range(0, 1000).ToArray();
+                var delete = insert.Take(100).ToArray();
+                var tree = new RedBlackTree();
+
+                foreach (var item in insert)
+                {
+                    tree.Insert(item);
+                    tree.Insert(item);
+                }
+
+                foreach (var item in delete)
+                {
+                    tree.Remove(item);
+                }
+
+                foreach (var item in insert.Except(delete))
+                {
+                    Assert.True(tree.Contains(item));
+                }
+
+                foreach (var item in tree)
+                {
+                    _testOutputHelper.WriteLine(item.ToString());
+                }
+
+                Assert.True(tree.IsValid());
             }
         }
     }

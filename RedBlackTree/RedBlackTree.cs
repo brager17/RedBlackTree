@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("RedBlackTree.Tests")]
@@ -122,7 +125,7 @@ namespace RedBlackTreeStructure
         }
     }
 
-    public class RedBlackTree
+    public class RedBlackTree : IEnumerable<int>
     {
         public enum Color
         {
@@ -171,6 +174,7 @@ namespace RedBlackTreeStructure
 
         public class Node
         {
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             private Node Nil => new Node(this);
 
             public Node()
@@ -192,8 +196,8 @@ namespace RedBlackTreeStructure
                 if (Left?.Parent != null)
                     Left.Parent = null;
                 _left = nd;
-                if (nd != null)
-                    nd.Parent = this;
+                // if (nd != null)
+                nd.Parent = this;
             }
 
             public void SetRight(Node nd)
@@ -201,11 +205,11 @@ namespace RedBlackTreeStructure
                 if (Right?.Parent != null)
                     Right.Parent = null;
                 _right = nd;
-                if (nd != null)
-                    nd.Parent = this;
+                // if (nd != null)
+                nd.Parent = this;
             }
 
-            public (Node removedNode, Node childRemovedNode) Remove()
+            public (Node removedNode, Node childRemovedNode, bool needBalance) Remove()
             {
                 if (Left.IsNil() && Right.IsNil())
                 {
@@ -214,16 +218,18 @@ namespace RedBlackTreeStructure
                         Parent.SetLeft(nil);
                     else if (Parent?.Right == this)
                         Parent.SetRight(nil);
-                    return (this, nil);
+                    return (this, nil, Color == Color.Black);
                 }
 
                 if (Left.IsNil() && !Right.IsNil())
                 {
+                    var needBalance = true;
                     if (Parent?.Left == this)
                     {
                         Parent.SetLeft(Left);
                         if (Color == Color.Black && Left.Color == Color.Red)
                         {
+                            needBalance = false;
                             Left.Color = Color.Black;
                         }
                     }
@@ -232,20 +238,23 @@ namespace RedBlackTreeStructure
                         Parent.SetRight(Right);
                         if (Color == Color.Black && Right.Color == Color.Red)
                         {
+                            needBalance = false;
                             Right.Color = Color.Black;
                         }
                     }
 
-                    return (this, Right);
+                    return (this, Right, needBalance);
                 }
 
                 if (!Left.IsNil() && Right.IsNil())
                 {
+                    var needBalance = true;
                     if (Parent?.Left == this)
                     {
                         Parent.SetLeft(Left);
                         if (Color == Color.Black && Right.Color == Color.Red)
                         {
+                            needBalance = false;
                             Right.Color = Color.Black;
                         }
                     }
@@ -254,17 +263,18 @@ namespace RedBlackTreeStructure
                         Parent.SetRight(Left);
                         if (Color == Color.Black && Left.Color == Color.Red)
                         {
+                            needBalance = false;
                             Left.Color = Color.Black;
                         }
                     }
 
-                    return (this, Left);
+                    return (this, Left, needBalance);
                 }
 
                 var firstNodeWhichMore = Left;
                 while (!firstNodeWhichMore.Right.IsNil())
                 {
-                    firstNodeWhichMore = firstNodeWhichMore.Left;
+                    firstNodeWhichMore = firstNodeWhichMore.Right;
                 }
 
                 // ReSharper disable once PossibleNullReferenceException
@@ -300,7 +310,7 @@ namespace RedBlackTreeStructure
             }
 
 
-            public Node Parent { get; private set; }
+            public Node Parent { get; internal set; }
             public Color Color;
             public int Value;
         }
@@ -308,6 +318,48 @@ namespace RedBlackTreeStructure
         internal Node _root;
 
         public RedBlackTree(Node root = default) => _root = root;
+
+        public bool IsValid()
+        {
+            var (valid, list) = CalculateHeight(_root);
+            return valid && list.Distinct().Count() == 1;
+        }
+
+        private (bool redBlackValid, List<int>) CalculateHeight(Node nd, int h = 0)
+        {
+            if ((nd.Color | nd.Left.Color) == Color.Red || (nd.Color | nd.Right.Color) == Color.Red)
+            {
+                return (false, null);
+            }
+
+            var r = new List<int>();
+            if (!nd.Left.IsNil())
+            {
+                var (isValid, result) = CalculateHeight(nd.Left, nd.Color == Color.Black ? h + 1 : h);
+                if (!isValid)
+                    return (false, null);
+                r.AddRange(result);
+            }
+            else
+            {
+                r.Add(nd.Color == Color.Black ? h + 1 : h);
+            }
+
+            if (!nd.Right.IsNil())
+            {
+                var (isValid, result) = CalculateHeight(nd.Right, nd.Color == Color.Black ? h + 1 : h);
+                if (!isValid)
+                    return (false, null);
+
+                r.AddRange(result);
+            }
+            else
+            {
+                r.Add(nd.Color == Color.Black ? h + 1 : h);
+            }
+
+            return (true, r);
+        }
 
         private (Node, bool isRightSon ) GetParentForNewNode(int value)
         {
@@ -474,9 +526,9 @@ namespace RedBlackTreeStructure
         public void Remove(int value)
         {
             var deleted = GetNode(value);
-            var (removed, child) = deleted.Remove();
+            var (removed, child, needBalance) = deleted.Remove();
 
-            if (removed.Color == Color.Black)
+            if (needBalance)
             {
                 BalanceAfterRemoveNode(child);
             }
@@ -486,7 +538,8 @@ namespace RedBlackTreeStructure
         {
             if (childRemovedNode == _root)
                 return;
-            
+
+
             var siblingDeletedNode = childRemovedNode.Sibling();
             //7
             if (childRemovedNode.IsLeftChild() && siblingDeletedNode.Color == Color.Black &&
@@ -506,7 +559,7 @@ namespace RedBlackTreeStructure
                      && siblingDeletedNode?.Color == Color.Red && childRemovedNode.IsLeftChild())
             {
                 Case1(childRemovedNode, siblingDeletedNode);
-                BalanceAfterRemoveNode(childRemovedNode);
+                Case5(childRemovedNode, childRemovedNode.Sibling());
             }
             //2
             else if (
@@ -514,7 +567,7 @@ namespace RedBlackTreeStructure
                 siblingDeletedNode?.Color == Color.Red && childRemovedNode.IsRightChild())
             {
                 Case2(childRemovedNode, siblingDeletedNode);
-                BalanceAfterRemoveNode(childRemovedNode);
+                Case6(childRemovedNode, childRemovedNode.Sibling());
             }
             //3
             else if (childRemovedNode.IsLeftChild() && siblingDeletedNode?.Color == Color.Black &&
@@ -534,7 +587,7 @@ namespace RedBlackTreeStructure
             else if (childRemovedNode.IsLeftChild() && siblingDeletedNode.Color == Color.Black &&
                      siblingDeletedNode.Left.Color == Color.Black && siblingDeletedNode.Right.Color == Color.Black)
             {
-                var needBalanceFather = childRemovedNode.Parent?.Color == Color.Red;
+                var needBalanceFather = childRemovedNode.Parent?.Color == Color.Black;
                 Case5(childRemovedNode, siblingDeletedNode);
                 if (needBalanceFather)
                 {
@@ -546,7 +599,7 @@ namespace RedBlackTreeStructure
             else if (childRemovedNode.IsRightChild() && siblingDeletedNode.Color == Color.Black &&
                      siblingDeletedNode.Left.Color == Color.Black && siblingDeletedNode.Right.Color == Color.Black)
             {
-                var needBalanceFather = childRemovedNode.Parent?.Color == Color.Red;
+                var needBalanceFather = childRemovedNode.Parent?.Color == Color.Black;
                 Case6(childRemovedNode, siblingDeletedNode);
                 if (needBalanceFather)
                 {
@@ -652,6 +705,31 @@ namespace RedBlackTreeStructure
             a.Color = Color.Black;
             d.Color = Color.Black;
             if (a == _root) _root = b;
+        }
+
+        public IEnumerator<int> GetEnumerator()
+        {
+            var queue = new Queue<Node>();
+            queue.Enqueue(_root);
+            while (queue.Count > 0)
+            {
+                var node = queue.Dequeue();
+                yield return node.Value;
+                if (!node.Left.IsNil())
+                {
+                    queue.Enqueue(node.Left);
+                }
+
+                if (!node.Right.IsNil())
+                {
+                    queue.Enqueue(node.Right);
+                }
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
